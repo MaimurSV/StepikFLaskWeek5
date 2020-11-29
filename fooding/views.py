@@ -10,26 +10,45 @@ from fooding import app, db
 @app.route("/")
 def index_route():
     return render_template("main.html")
-# ------------------------------------------------------
-# Декораторы авторизации
 
 
 # ------------------------------------------------------
-# Страница админки
+# Корзина
+@app.route("/cart/")
+def cart_route():
+    return render_template("cart.html")
 
 
 # ------------------------------------------------------
-# Страница аутентификации
+# Страница личного кабинета
+@app.route("/account/")
+def account_route():
+    return render_template("account.html")
 
 
 # ------------------------------------------------------
-# Страница выхода из админки
+# Страница авторизации
+@app.route("/login/")
+def login_route():
+    return render_template("login.html")
 
 
 # ------------------------------------------------------
-# Страница добавления пользователя
+# Страница регистрации
+@app.route("/register/")
+def register_route():
+    return render_template("register.html")
 
 
 # ------------------------------------------------------
-# Страница смены пароля
+# Страница выхода
+@app.route("/logout/")
+def logout_route():
+    return render_template("logout.html")
 
+
+# ------------------------------------------------------
+# Страница подтверждения отправки заказа
+@app.route("/ordered/")
+def ordered_route():
+    return render_template("ordered.html")
