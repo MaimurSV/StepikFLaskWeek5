@@ -37,9 +37,8 @@
               <input type="text" class="font-weight-bold form-control" id="name">
             </div>
 
-           <input type="hidden" value = "875" name="order_summ">
-           <input type="hidden" value="[1,3,4]" name="order_cart">
-
+           <input type="hidden" value = "{{ meals | sum(attribute="price")}}" name="order_summ">
+           <input type="hidden" value="{{ session["cart"] }}" name="order_cart">
 
           </form>
         </div>
@@ -54,34 +53,22 @@
 
       <div class="col-1"></div>
       <div class="col-7">
-        <h4 class="mb-3 col-7 mb-5">3 блюда в корзине</h4>
+        <h4 class="mb-3 col-7 mb-5">{{ meals | list | count }} блюда в корзине</h4>
         <table class="table">
           <tbody>
-            <tr>
-              <th scope="row">Ролл "Хомский"</th>
+          {% for meal in meals %}
+          <tr>
+              <th scope="row">{{meal.title}}</th>
               <td></td>
               <td>1</td>
-              <td>315</td>
-              <td><a class="text-danger" href="#">Удалить</a></td>
+              <td>{{ meal.price }}</td>
+              <td><a class="text-danger" href="/cart/delete/{{ meal.id }}/">Удалить</a></td>
             </tr>
-            <tr>
-              <th scope="row">Бургер 404</th>
-              <td></td>
-              <td>1</td>
-              <td>250</td>
-              <td><a class="text-danger" href="#">Удалить</a></td>
-            </tr>
-            <tr>
-              <th scope="row">Пица "Армин"</th>
-              <td></td>
-              <td>1</td>
-              <td>310</td>
-              <td><a class="text-danger" href="#">Удалить</a></td>
-            </tr>
+          {% endfor %}
           </tbody>
         </table>
         <hr>
-        <p class="display-4 my-2 ">875 руб</p>
+        <p class="display-4 my-2 ">{{ meals | sum(attribute="price") }} руб</p>
       </div>
     </div>
   </main>

@@ -33,15 +33,34 @@ def index_route():
 
 # ------------------------------------------------------
 # Корзина
-@app.route("/addtocart/<int: id>/")
-def addtocart_route():
-    return render_template("cart.html")
+@app.route("/addtocart/<int:id>/")
+def addtocart_route(id):
+    Meal.query.get_or_404(id)
+    cart = session.get("cart", [])
+    if id not in cart:
+        cart.append(id)
+        session["cart"] = cart
+    return redirect("/cart/")
+
 
 # ------------------------------------------------------
 # Корзина
 @app.route("/cart/")
 def cart_route():
-    return render_template("cart.html")
+    meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
+    return render_template("cart.html", meals=meals)
+
+
+# ------------------------------------------------------
+# Корзина (удаление блюда из корзины)
+@app.route("/cart/delete/<int:id>/")
+def cart_delete_route(id):
+    if id in session["cart"]:
+        cart = session.get("cart")
+        cart.remove(id)
+    session["cart"] = cart
+    meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
+    return render_template("cart.html", meals=meals)
 
 
 # ------------------------------------------------------
