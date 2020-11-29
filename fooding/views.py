@@ -1,6 +1,8 @@
+import random
 from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
+from fooding.models import Meal, MealCategory
 
 from fooding import app, db
 
@@ -9,8 +11,31 @@ from fooding import app, db
 # Главная страница
 @app.route("/")
 def index_route():
-    return render_template("main.html")
+    meals_category = MealCategory.query.all()
+    meals = Meal.query.all()
+    # Решение задачи со случайным отображением трех блюд с каждой категориии
+    # Перемешиваем блюда, затем проходясь в цикле по категориям, проходимся в цикле по
+    # блюдам, находим блюда
+    # этой категории, если число найденных блюд достигло 3 и выше, удаляем эти блюда.
+    # Повторно делаем запрос ко вем блюдам и опять их перемемешиваем (хотя это уже необязательно)
+    random.shuffle(meals)
+    for category in meals_category:
+        i = 0
+        for meal in meals:
+            if meal.category_id == category.id:
+                i += 1
+                if i > 3:
+                    Meal.query.filter_by(id=meal.id).delete()
+    meals = Meal.query.all()
+    random.shuffle(meals)
+    return render_template("main.html", meals=meals, meals_category=meals_category)
 
+
+# ------------------------------------------------------
+# Корзина
+@app.route("/addtocart/<int: id>/")
+def addtocart_route():
+    return render_template("cart.html")
 
 # ------------------------------------------------------
 # Корзина
