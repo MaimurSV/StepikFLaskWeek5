@@ -3,6 +3,7 @@ from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
 from fooding.models import Meal, MealCategory
+from fooding.forms import OrderForm
 
 from fooding import app, db
 
@@ -48,10 +49,14 @@ def addtocart_route(id):
 
 # ------------------------------------------------------
 # Корзина
-@app.route("/cart/")
+@app.route("/cart/", methods=["GET", "POST"])
 def cart_route():
+    form = OrderForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            return render_template("ordered.html")
     meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
-    return render_template("cart.html", meals=meals)
+    return render_template("cart.html", form=form, meals=meals)
 
 
 # ------------------------------------------------------

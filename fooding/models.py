@@ -45,7 +45,7 @@ class Order(db.Model):
     meals = db.relationship(
         "Meal", secondary=orders_and_meals_table, back_populates="orders"
     )
-    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=True)
+    user_id = db.Column(db.Integer, db.ForeignKey("users.id"), nullable=False)
     users = db.relationship("User", back_populates="orders")
 
 
