@@ -87,7 +87,26 @@ def account_route():
 # Страница авторизации
 @app.route("/login/", methods=["GET", "POST"])
 def login_route():
-    return render_template("login.html")
+    if "is_auth" in session.keys():
+        if session["is_auth"]:
+            return redirect("/account/")
+    form = LoginForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            email = form.email.data
+            password = form.password.data
+            user = User.query.filter_by(email=email).first()
+            if user and check_password_hash(user.password, password):
+                session["is_auth"] = True
+                session["user_id"] = user.id
+                if "error" in session.keys():
+                    session.pop("error")
+                return redirect("/account/")
+            elif not user:
+                session["error"] = "Пользователь не найден!"
+            elif not check_password_hash(user.password, password):
+                session["error"] = "Введенный Вами пароль неверен!"
+    return render_template("login.html", form=form)
 
 
 # ------------------------------------------------------
@@ -100,7 +119,7 @@ def register_route():
             if not User.query.filter_by(email=form.email.data).first():
                 email = form.email.data
                 password = form.password.data
-                user = User(email=email, password=password)
+                user = User(email=email, password=generate_password_hash(password))
                 db.session.add(user)
                 db.session.commit()
                 session["is_auth"] = True
@@ -115,8 +134,8 @@ def register_route():
 # Страница выхода
 @app.route("/logout/")
 def logout_route():
-    session.clear
-    return render_template("login.html")
+    session.clear()
+    return redirect("/login/")
 
 
 # ------------------------------------------------------
