@@ -1,9 +1,10 @@
 import random
+from datetime import datetime
 from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
-from fooding.models import Meal, MealCategory, User
+from fooding.models import Meal, MealCategory, User, Order
 from fooding.forms import OrderForm, RegistrationForm, LoginForm
 
 from fooding import app, db
@@ -55,6 +56,18 @@ def cart_route():
     form = OrderForm()
     if request.method == "POST":
         if form.validate_on_submit():
+            user_id = session["user_id"]
+            name = form.name.data
+            address = form.name.data
+            email = form.email.data
+            phone = form.phone.data
+            sum = session["sum"]
+            order = Order(order_date=datetime.now(), status="new", address=address, email=email, phone=phone, sum=sum,
+                         user_id=user_id)
+            meal = Meal.query.filter(Meal.id.in_(session["cart"])).all()
+            order.meals.extend(meal)
+            db.session.add(order)
+            db.session.commit()
             return render_template("ordered.html")
     meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
     return render_template("cart.html", form=form, meals=meals)
@@ -80,6 +93,11 @@ def cart_delete_route(id):
 # Страница личного кабинета
 @app.route("/account/")
 def account_route():
+    if "is_auth" in session.keys():
+        if session["is_auth"]:
+            orders = Order.query.filter_by(user_id=session["user_id"])
+        else:
+            return redirect("/login/")
     return render_template("account.html")
 
 
