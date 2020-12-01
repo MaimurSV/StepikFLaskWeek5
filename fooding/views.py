@@ -2,8 +2,9 @@ import random
 from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
-from fooding.models import Meal, MealCategory
-from fooding.forms import OrderForm
+from werkzeug.security import generate_password_hash, check_password_hash
+from fooding.models import Meal, MealCategory, User
+from fooding.forms import OrderForm, RegistrationForm, LoginForm
 
 from fooding import app, db
 
@@ -84,23 +85,38 @@ def account_route():
 
 # ------------------------------------------------------
 # Страница авторизации
-@app.route("/login/")
+@app.route("/login/", methods=["GET", "POST"])
 def login_route():
     return render_template("login.html")
 
 
 # ------------------------------------------------------
 # Страница регистрации
-@app.route("/register/")
+@app.route("/register/", methods=["GET", "POST"])
 def register_route():
-    return render_template("register.html")
+    form = RegistrationForm()
+    if request.method == "POST":
+        if form.validate_on_submit():
+            if not User.query.filter_by(email=form.email.data).first():
+                email = form.email.data
+                password = form.password.data
+                user = User(email=email, password=password)
+                db.session.add(user)
+                db.session.commit()
+                session["is_auth"] = True
+                session["user_id"] = user.id
+                return redirect("/account/")
+            else:
+                return redirect("/login/")
+    return render_template("register.html", form=form)
 
 
 # ------------------------------------------------------
 # Страница выхода
 @app.route("/logout/")
 def logout_route():
-    return render_template("logout.html")
+    session.clear
+    return render_template("login.html")
 
 
 # ------------------------------------------------------
