@@ -5,12 +5,17 @@
   <main class="container">
     <h1 class="h3 my-4">Корзина</h1>
 
+  {% if "delete" in request.path %}
     <div class="alert alert-warning" role="alert">Блюдо удалено из корзины</div>
-    <div class="alert alert-warning" role="alert">Чтобы сделать заказ – <a href="/login.html">войдите</a> или <a href="/register.html">зарегистрируйтесь</a></div>
-
+  {% endif %}
+    {% if not session["is_logged"] %}
+      <div class="alert alert-warning" role="alert">Чтобы сделать заказ – <a href="/login.html">войдите</a> или <a href="/register.html">зарегистрируйтесь</a></div>
+    {% endif %}
     <div class="row mt-5">
 
-
+{% if (meals | list | count) == 0 %}
+    <h4 class="center-block" align="center">Корзина пуста</h4>
+    {% else %}
         <div class="col-4">
           <form action="/cart/" method="POST">
           <h4 class="">Ваши данные</h4>
@@ -69,7 +74,7 @@
         </table>
         <hr>
         <p class="display-4 my-2 ">{{ meals | sum(attribute="price") }} руб</p>
-      </div>
+      </div>{% endif %}
     </div>
   </main>
 {%  endblock %}
