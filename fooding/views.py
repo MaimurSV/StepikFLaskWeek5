@@ -92,7 +92,7 @@ def cart_route():
         if form.validate_on_submit() and sum != 0:
             user_id = session["user_id"]
             name = form.name.data
-            address = form.name.data
+            address = form.address.data
             email = form.email.data
             phone = form.phone.data
             order = Order(order_date=datetime.now(), status="Заказ принят", address=address, email=email, phone=phone,
