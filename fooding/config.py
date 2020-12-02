@@ -2,7 +2,7 @@ import os
 
 current_path = os.path.dirname(os.path.realpath(__file__))
 db_path = "sqlite:///" + current_path + "\\base.db"
-MIN_PASSWORD_LENGTH = 8
+MIN_PASSWORD_LENGTH = 5
 
 
 class Config:

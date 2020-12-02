@@ -1,9 +1,20 @@
 import re
 
+import phonenumbers
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import Length, InputRequired, Email, DataRequired, EqualTo, ValidationError
 from fooding.config import MIN_PASSWORD_LENGTH
+
+
+def number_check(form ,field):
+    msg = "Вы ввели некорректный номер телефона"
+    try:
+        z = phonenumbers.parse(field.data, "RU")
+        if not phonenumbers.is_valid_number(z):
+            raise ValidationError(msg)
+    except phonenumbers.phonenumberutil.NumberParseException:
+        raise ValidationError(msg)
 
 
 class OrderForm(FlaskForm):
@@ -16,8 +27,9 @@ class OrderForm(FlaskForm):
     email = StringField("Электронная почта", validators=[InputRequired(message="Введите электронную почту!"),
                                                          Email(
                                                              message="Введенный адрес электронной почты некорректен!")])
-    phone = StringField("Ваше телефон", validators=[InputRequired(message="Введите Ваше телефон!"),
-                                                Length(message="Имя не может быть меньше 3 символов!", min=3)])
+    phone = StringField("Ваше телефон", validators=[InputRequired(message="Введите Ваш телефон!"),
+                                                    number_check
+                                                    ])
 
 
 def password_check(form, field):
