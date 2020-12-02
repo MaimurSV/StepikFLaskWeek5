@@ -4,13 +4,21 @@ from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from flask_admin import Admin
+from flask_admin.contrib.sqla import ModelView
 
 from fooding.models import Meal, MealCategory, User, Order
 from fooding.forms import OrderForm, RegistrationForm, LoginForm
 
 from fooding import app, db
 
+
+admin = Admin(app)
+
+admin.add_view(ModelView(User, db.session))
+admin.add_view(ModelView(Order, db.session))
+admin.add_view(ModelView(Meal, db.session))
+admin.add_view(ModelView(MealCategory, db.session))
 
 @app.template_filter("date_word")
 def date_word(value):
@@ -78,14 +86,17 @@ def cart_route():
     form = OrderForm()
     cart = session.get("cart", [])
     sum = session.get("sum", 0)
+    session["cart"] = cart
+    session["sum"] = sum
     if request.method == "POST":
-        if form.validate_on_submit():
+        if form.validate_on_submit() and sum != 0:
             user_id = session["user_id"]
             name = form.name.data
             address = form.name.data
             email = form.email.data
             phone = form.phone.data
-            order = Order(order_date=datetime.now(), status="new", address=address, email=email, phone=phone, sum=sum,
+            order = Order(order_date=datetime.now(), status="Заказ принят", address=address, email=email, phone=phone,
+                          sum=sum, name=name,
                           user_id=user_id)
             meal = Meal.query.filter(Meal.id.in_(cart)).all()
             order.meals.extend(meal)
@@ -94,8 +105,6 @@ def cart_route():
             session.pop("cart")
             session.pop("sum")
             return render_template("ordered.html")
-    session["cart"] = cart
-    session["sum"] = sum
     meals = Meal.query.filter(Meal.id.in_(cart)).all()
     return render_template("cart.html", form=form, meals=meals)
 
@@ -107,10 +116,12 @@ def cart_delete_route(id):
     form = OrderForm()
     cart = session.get("cart", [])
     sum = session.get("sum", 0)
-    if id in session["cart"]:
+    if id in cart:
         cart.remove(id)
         meal = Meal.query.get_or_404(id)
         sum -= meal.price
+    else:
+        abort(404)
     session["cart"] = cart
     session["sum"] = sum
     meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
@@ -121,20 +132,21 @@ def cart_delete_route(id):
 # Страница личного кабинета
 @app.route("/account/")
 def account_route():
-    if session["is_auth"]:
+    is_auth = session.get("is_auth", False)
+    if is_auth:
         orders = Order.query.filter_by(user_id=session["user_id"]).order_by(Order.order_date.desc())
     else:
-        return redirect("/login/")
+        return redirect("/auth/")
     return render_template("account.html", orders=orders)
 
 
 # ------------------------------------------------------
 # Страница авторизации
-@app.route("/login/", methods=["GET", "POST"])
-def login_route():
-    if "is_auth" in session.keys():
-        if session["is_auth"]:
-            return redirect("/account/")
+@app.route("/auth/", methods=["GET", "POST"])
+def auth_route():
+    is_auth = session.get("is_auth", False)
+    if is_auth:
+        return redirect("/account/")
     form = LoginForm()
     if request.method == "POST":
         if form.validate_on_submit():
@@ -151,7 +163,7 @@ def login_route():
                 session["error"] = "Пользователь не найден!"
             elif not check_password_hash(user.password, password):
                 session["error"] = "Введенный Вами пароль неверен!"
-    return render_template("login.html", form=form)
+    return render_template("auth.html", form=form)
 
 
 # ------------------------------------------------------
@@ -171,7 +183,7 @@ def register_route():
                 session["user_id"] = user.id
                 return redirect("/account/")
             else:
-                return redirect("/login/")
+                return redirect("/auth/")
     return render_template("register.html", form=form)
 
 
@@ -180,7 +192,7 @@ def register_route():
 @app.route("/logout/")
 def logout_route():
     session.clear()
-    return redirect("/login/")
+    return redirect("/auth/")
 
 
 # ------------------------------------------------------

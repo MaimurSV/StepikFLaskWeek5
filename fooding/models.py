@@ -41,6 +41,7 @@ class Order(db.Model):
     email = db.Column(db.String(), nullable=False)
     phone = db.Column(db.String(), nullable=False)
     address = db.Column(db.String(), nullable=False)
+    name = db.Column(db.String(), nullable=False)
     meals = db.relationship(
         "Meal", secondary=orders_and_meals_table, back_populates="orders"
     )
