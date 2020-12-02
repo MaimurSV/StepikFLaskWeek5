@@ -68,6 +68,8 @@ def cart_route():
             order.meals.extend(meal)
             db.session.add(order)
             db.session.commit()
+            session.pop("cart")
+            session.pop("sum")
             return render_template("ordered.html")
     meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
     return render_template("cart.html", form=form, meals=meals)
@@ -77,6 +79,7 @@ def cart_route():
 # Корзина (удаление блюда из корзины)
 @app.route("/cart/delete/<int:id>/")
 def cart_delete_route(id):
+    form = OrderForm()
     cart = session.get("cart")
     sum = session.get("sum", 0)
     if id in session["cart"]:
@@ -86,7 +89,7 @@ def cart_delete_route(id):
     session["cart"] = cart
     session["sum"] = sum
     meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
-    return render_template("cart.html", meals=meals)
+    return render_template("cart.html", form=form, meals=meals)
 
 
 # ------------------------------------------------------
