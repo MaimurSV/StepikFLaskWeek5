@@ -7,7 +7,7 @@
             {% if session["sum"] == 0 %}
                 <p class="my-2 text-white bg-dark ">Корзина пуста</p>
             {% else %}
-                <p class="my-2 text-white bg-dark "><a href="/cart/">Корзина ({{ session["cart"] | count }} блюда
+                <p class="my-2 text-white bg-dark "><a href="/cart/">Корзина ({{ session["cart"] | count | meal_word}},
                     {{ session["sum"] }} руб.)</a></p>
             {% endif %}
             <img class="ml-2"

@@ -49,7 +49,7 @@
 
                 <div class="col-1"></div>
                 <div class="col-7">
-                    <h4 class="mb-3 col-7 mb-5">{{ meals | list | count }} блюда в корзине</h4>
+                    <h4 class="mb-3 col-7 mb-5">{{ meals | list | count | meal_word}} в корзине</h4>
                     <table class="table">
                         <tbody>
                         {% for meal in meals %}

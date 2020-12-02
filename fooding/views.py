@@ -4,11 +4,33 @@ from functools import wraps
 
 from flask import abort, flash, session, redirect, request, render_template
 from werkzeug.security import generate_password_hash, check_password_hash
+
+
 from fooding.models import Meal, MealCategory, User, Order
 from fooding.forms import OrderForm, RegistrationForm, LoginForm
 
 from fooding import app, db
 
+
+@app.template_filter("date_word")
+def date_word(value):
+    month_list = ["января", "февраля", "марта", "апреля", "мая", "июня",
+                  "июля", "августа", "сентября", "октября", "ноября", "декабря"]
+
+    month = month_list[int(datetime.strftime(value, "%m")) - 1]
+    day = datetime.strftime(value, "%w")
+    return day + " " + month
+
+
+@app.template_filter("meal_word")
+def meal_word(value):
+    if value in [2, 3, 4]:
+        return str(value) + " блюда"
+    elif str(value)[len(str(value))-1]=="1":
+        return str(value) + " блюдо"
+    else:
+        return str(value) + " блюд"
+    
 
 # ------------------------------------------------------
 # Главная страница
@@ -54,6 +76,8 @@ def addtocart_route(id):
 @app.route("/cart/", methods=["GET", "POST"])
 def cart_route():
     form = OrderForm()
+    cart = session.get("cart", [])
+    sum = session.get("sum", 0)
     if request.method == "POST":
         if form.validate_on_submit():
             user_id = session["user_id"]
@@ -61,17 +85,18 @@ def cart_route():
             address = form.name.data
             email = form.email.data
             phone = form.phone.data
-            sum = session["sum"]
             order = Order(order_date=datetime.now(), status="new", address=address, email=email, phone=phone, sum=sum,
-                         user_id=user_id)
-            meal = Meal.query.filter(Meal.id.in_(session["cart"])).all()
+                          user_id=user_id)
+            meal = Meal.query.filter(Meal.id.in_(cart)).all()
             order.meals.extend(meal)
             db.session.add(order)
             db.session.commit()
             session.pop("cart")
             session.pop("sum")
             return render_template("ordered.html")
-    meals = Meal.query.filter(Meal.id.in_(session["cart"])).all()
+    session["cart"] = cart
+    session["sum"] = sum
+    meals = Meal.query.filter(Meal.id.in_(cart)).all()
     return render_template("cart.html", form=form, meals=meals)
 
 
@@ -80,7 +105,7 @@ def cart_route():
 @app.route("/cart/delete/<int:id>/")
 def cart_delete_route(id):
     form = OrderForm()
-    cart = session.get("cart")
+    cart = session.get("cart", [])
     sum = session.get("sum", 0)
     if id in session["cart"]:
         cart.remove(id)
@@ -96,12 +121,11 @@ def cart_delete_route(id):
 # Страница личного кабинета
 @app.route("/account/")
 def account_route():
-    if "is_auth" in session.keys():
-        if session["is_auth"]:
-            orders = Order.query.filter_by(user_id=session["user_id"])
-        else:
-            return redirect("/login/")
-    return render_template("account.html")
+    if session["is_auth"]:
+        orders = Order.query.filter_by(user_id=session["user_id"]).order_by(Order.order_date.desc())
+    else:
+        return redirect("/login/")
+    return render_template("account.html", orders=orders)
 
 
 # ------------------------------------------------------
