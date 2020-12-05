@@ -1,1 +1,1 @@
-web: gunicorn fooding:app
+web: gunicorn run
