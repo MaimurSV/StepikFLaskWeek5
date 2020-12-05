@@ -4,10 +4,11 @@ import phonenumbers
 from flask_wtf import FlaskForm
 from wtforms import StringField, PasswordField
 from wtforms.validators import Length, InputRequired, Email, DataRequired, EqualTo, ValidationError
+
 from fooding.config import MIN_PASSWORD_LENGTH
 
 
-def number_check(form ,field):
+def number_check(form, field):
     msg = "Вы ввели некорректный номер телефона"
     try:
         z = phonenumbers.parse(field.data, "RU")
@@ -59,7 +60,8 @@ class RegistrationForm(FlaskForm):
         "Пароль:",
         validators=[
             DataRequired(),
-            Length(min=MIN_PASSWORD_LENGTH, message="Пароль должен быть не менее " + str(MIN_PASSWORD_LENGTH) + " символов"),
+            Length(min=MIN_PASSWORD_LENGTH,
+                   message="Пароль должен быть не менее " + str(MIN_PASSWORD_LENGTH) + " символов"),
             EqualTo('confirm_password', message="Пароли не одинаковые"),
             password_check
         ]

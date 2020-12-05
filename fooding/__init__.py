@@ -1,6 +1,6 @@
 import locale
-from flask import Flask
 
+from flask import Flask
 
 from fooding.config import Config
 from fooding.models import db, migrate
@@ -11,7 +11,5 @@ app.config.from_object(Config)
 
 db.init_app(app)
 migrate.init_app(app, db)
-
-
 
 from fooding.views import *

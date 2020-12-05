@@ -1,14 +1,12 @@
-from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-
+from flask_sqlalchemy import SQLAlchemy
 
 db = SQLAlchemy()
 migrate = Migrate()
 
-
 orders_and_meals_table = db.Table('orders_and_meals',
-    db.Column('meal_id', db.Integer, db.ForeignKey('meals.id')),
-    db.Column('order_id', db.Integer, db.ForeignKey('orders.id')))
+                                  db.Column('meal_id', db.Integer, db.ForeignKey('meals.id')),
+                                  db.Column('order_id', db.Integer, db.ForeignKey('orders.id')))
 
 
 class Meal(db.Model):
@@ -55,6 +53,3 @@ class User(db.Model):
     email = db.Column(db.String(), nullable=False)
     password = db.Column(db.String(255), nullable=False)
     orders = db.relationship("Order", back_populates="users")
-
-
-

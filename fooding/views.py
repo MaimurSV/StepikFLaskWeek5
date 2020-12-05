@@ -1,17 +1,14 @@
 import random
 from datetime import datetime
-from functools import wraps
 
-from flask import abort, flash, session, redirect, request, render_template
-from werkzeug.security import generate_password_hash, check_password_hash
+from flask import abort, session, redirect, request, render_template
 from flask_admin import Admin
 from flask_admin.contrib.sqla import ModelView
-
-from fooding.models import Meal, MealCategory, User, Order
-from fooding.forms import OrderForm, RegistrationForm, LoginForm
+from werkzeug.security import generate_password_hash, check_password_hash
 
 from fooding import app, db
-
+from fooding.forms import OrderForm, RegistrationForm, LoginForm
+from fooding.models import Meal, MealCategory, User, Order
 
 admin = Admin(app)
 
@@ -19,6 +16,7 @@ admin.add_view(ModelView(User, db.session))
 admin.add_view(ModelView(Order, db.session))
 admin.add_view(ModelView(Meal, db.session))
 admin.add_view(ModelView(MealCategory, db.session))
+
 
 @app.template_filter("date_word")
 def date_word(value):
@@ -34,11 +32,11 @@ def date_word(value):
 def meal_word(value):
     if value in [2, 3, 4]:
         return str(value) + " блюда"
-    elif str(value)[len(str(value))-1]=="1":
+    elif str(value)[len(str(value)) - 1] == "1":
         return str(value) + " блюдо"
     else:
         return str(value) + " блюд"
-    
+
 
 # ------------------------------------------------------
 # Главная страница
