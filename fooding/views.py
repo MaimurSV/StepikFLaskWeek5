@@ -9,8 +9,6 @@ from fooding.forms import OrderForm, RegistrationForm, LoginForm
 from fooding.models import Meal, MealCategory, User, Order
 
 
-
-
 @app.template_filter("date_word")
 def date_word(value):
     month_list = ["января", "февраля", "марта", "апреля", "мая", "июня",
