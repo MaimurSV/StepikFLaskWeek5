@@ -1,21 +1,14 @@
 import random
 from datetime import datetime
 
-from flask import abort, session, redirect, request, render_template
-from flask_admin import Admin
-from flask_admin.contrib.sqla import ModelView
+from flask import abort, session, redirect, request, render_template, flash
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from fooding import app, db
 from fooding.forms import OrderForm, RegistrationForm, LoginForm
 from fooding.models import Meal, MealCategory, User, Order
 
-admin = Admin(app)
 
-admin.add_view(ModelView(User, db.session))
-admin.add_view(ModelView(Order, db.session))
-admin.add_view(ModelView(Meal, db.session))
-admin.add_view(ModelView(MealCategory, db.session))
 
 
 @app.template_filter("date_word")
@@ -158,9 +151,9 @@ def auth_route():
                     session.pop("error")
                 return redirect("/account/")
             elif not user:
-                session["error"] = "Пользователь не найден!"
+                flash("Пользователь не найден!")
             elif not check_password_hash(user.password, password):
-                session["error"] = "Введенный Вами пароль неверен!"
+                flash("Введенный Вами пароль неверен!")
     return render_template("auth.html", form=form)
 
 

@@ -5,6 +5,13 @@
     <main class="container">
         <section class="mb-4 row">
             <div class="col-12 col-lg-8">
+            {% with messages = get_flashed_messages() %}
+                    {% if messages %}
+                    {% for message in messages %}
+                    <div class="alert alert-warning" role="alert">{{ message }}</div>
+                    {% endfor %}
+                    {% endif %}
+                    {% endwith %}
                 <h1 class="h3 my-5">Личный кабинет. Заказы</h1>
                 {% for order in orders %}
                     <div class="mt-4 card">
