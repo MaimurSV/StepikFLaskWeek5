@@ -1,4 +1,5 @@
 import fooding
 
 
-fooding.app.run()
+def create_app():
+    fooding.app.run()
