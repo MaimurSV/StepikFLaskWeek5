@@ -34,7 +34,7 @@ def meal_word(value):
 @app.route("/")
 def index_route():
     meals_category = MealCategory.query.all()
-    meals = Meal.query.all()
+    """meals = Meal.query.all()
     # Решение задачи со случайным отображением трех блюд с каждой категориии
     # Перемешиваем блюда, затем проходясь в цикле по категориям, проходимся в цикле по
     # блюдам, находим блюда
@@ -49,7 +49,16 @@ def index_route():
                 if i > 3:
                     Meal.query.filter_by(id=meal.id).delete()
     meals = Meal.query.all()
-    random.shuffle(meals)
+    random.shuffle(meals)"""
+    meals = []
+    for row in MealCategory.query.join(MealCategory.meals):
+        random.shuffle(row.meals)
+        i = 0
+        for meal in row.meals:
+            meals.append(meal)
+            i += 1
+            if i >= 3:
+                break
     return render_template("main.html", meals=meals, meals_category=meals_category)
 
 
