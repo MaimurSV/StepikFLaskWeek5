@@ -161,6 +161,9 @@ def auth_route():
 # Страница регистрации
 @app.route("/register/", methods=["GET", "POST"])
 def register_route():
+    is_auth = session.get("is_auth", False)
+    if is_auth:
+        return redirect("/account/")
     form = RegistrationForm()
     if request.method == "POST":
         if form.validate_on_submit():
