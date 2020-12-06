@@ -28,7 +28,7 @@ class OrderForm(FlaskForm):
     email = StringField("Электронная почта", validators=[InputRequired(message="Введите электронную почту!"),
                                                          Email(
                                                              message="Введенный адрес электронной почты некорректен!")])
-    phone = StringField("Ваше телефон", validators=[InputRequired(message="Введите Ваш телефон!"),
+    phone = StringField("Ваш телефон", validators=[InputRequired(message="Введите Ваш телефон!"),
                                                     number_check
                                                     ])
 
