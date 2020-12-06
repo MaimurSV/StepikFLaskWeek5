@@ -15,7 +15,7 @@ def date_word(value):
                   "июля", "августа", "сентября", "октября", "ноября", "декабря"]
 
     month = month_list[int(datetime.strftime(value, "%m")) - 1]
-    day = datetime.strftime(value, "%d")
+    day = datetime.strftime(value, "%d").lstrip("0")
     return day + " " + month
 
 
